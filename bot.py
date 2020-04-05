@@ -1,16 +1,16 @@
 import discord
 from discord.ext import commands
-from datetime import datetime
-
+from datetime import date, datetime
 from dotenv import load_dotenv
 import os
+import logging
+import utils.process as process
+import utils.database as db
+
+logging.basicConfig(level=logging.INFO)
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
 
-import logging
-logging.basicConfig(level=logging.INFO)
-
-import utils.process as process
 Config = process.readjson('config.json')
 
 class Amika(commands.Bot):
@@ -30,5 +30,13 @@ for file in os.listdir("cogs"):
 @bot.event
 async def on_ready():
     print("Amika started at {0}, loaded {1} cog(s)".format(datetime.now().strftime("%H:%M:%S"), len(bot.cogs)))
+
+@bot.event
+async def on_guild_join(guild):
+    db.insert_guild(guild)
+
+    for member in guild.members:
+        if(member != bot.user):
+            db.insert_member(member)
 
 bot.run(TOKEN)
