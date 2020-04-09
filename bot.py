@@ -21,6 +21,8 @@ class Amika(commands.Bot):
 bot = Amika()
 
 # read and loag cogs
+bot.remove_command('help')
+bot.remove_cog('general')
 for file in os.listdir("cogs"):
     if file.endswith('.py'):
         name = file[:-3]
@@ -33,10 +35,10 @@ async def on_ready():
 
 @bot.event
 async def on_guild_join(guild):
-    db.insert_guild(guild)
+    db.insertGuild(guild)
 
     for member in guild.members:
         if(member != bot.user):
-            db.insert_member(member)
+            db.insertMember(member)
 
 bot.run(TOKEN)

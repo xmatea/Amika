@@ -1,0 +1,37 @@
+{
+    "err": {
+        "noperm": "**{0}**, you are not allowed to perform that command... Required permission: `{1}` ",
+        "botnoperm": "I am not allowed to perform that command ;-; Required permission: `{0}`",
+        "invalidid": "Invalid id: '{0}'",
+        "usage": "Incorrect usage! Run {0}help {1} for more information."
+    },
+
+    "brief": {
+        "autodelete": "Automatically deletes non-image messages in a given channel.",
+        "clear": "Purge desired amount of messages.",
+        "help": "Displays a list of all commands, and how to use them.",
+        "say": "Make me say anything hehe",
+        "embed": "I can embed messages for you and make them fancy!"
+    },
+
+    "help": {
+        "autodelete": "Set me to automatically delete all non-image messages in a given channel. This includes all captioned images and image links as well. Useful for maintaining pure image galleries, no bullshit.\nUsage: `{0}autodelete <command> <channel_id>`\nParameters: `start` `stop`\nEx: {0}autodelete start 693748784034625012",
+        "clear": "Automatically delete a given amount of messages in the channel. Limit: 999 messages\nUsage: {0}clear <messages>\nEx: {0}clear 15",
+        "help": "{0}help will display a list of all commands. {0}help <category> will display a list of all commands in a category, and {0}help <command> will display detailed information and usage about a specific command.",
+        "say": "I can pass on a message for you, if you want. If possible, I will delete your command after sending. Example:\n`{0}say haha you're so funny`",
+        "embed": "Have me embed and format a message. If possible, I will delete your command after sending. You can pass colour and title arguments to the command if you want, with the flags `-c` and `-t`. Titles must be closed in brackets, and colours must be hex values. Example:\n`{0}embed -c #000000 -t [announcement] actually nvm have a nice day guys`"
+    },
+
+    "old_helptxt": {
+        "a": "Thank you for adding me here ♡ It really means a lot to me. I'll do my very best to make myself useful! Here's a quick setup guide:",
+        "b": "By default, my prefix is `{0}`\nTo change the current prefix, type `{0}setprefix <new prefix>`",
+        "c": "If it's okay for you guys, I can reply to certain messages in the chat! Enable or disable this with `{p}chatmode on / off`",
+        "d": "Each day, you can claim 100 sakuras and use them to buy crates filled with cute items! Type `{0}daily` to claim your money or `{0}shop` to go to the shop.",
+        "e": "Want to know more? Join my support server [here]({0}) for help, discussions and early access on upcoming features ♡ And, uhm, i-if you like me, do you mind [voting]({1}) for me at discordbots.org?"
+    },
+
+    "helptxt": {
+        "desc": "\nNeed help? Here is a list of all the things I can do. For more details on a specific command or category, type {1}help <name>"
+    }
+
+}
