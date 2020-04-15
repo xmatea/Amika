@@ -36,7 +36,7 @@ class Admin(commands.Cog):
                     else:
                         await ctx.send(f"'{g}' has a bad format and was not accepted. Syntax: `{Config.prefix}gif add [module] [url]`.\n URLs must start with https:// and end with .gif")
 
-                await ctx.send(f"Added {c} gif(s) to the **{args[1]}** gif pool.\n{ret}")
+                await ctx.send(f"Added {c} gif(s) to the **{args[1]}** gif pool.\n`{ret}`")
                 
 def setup(bot):
     bot.add_cog(Admin(bot))
