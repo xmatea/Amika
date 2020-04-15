@@ -38,8 +38,6 @@ class Moderation(commands.Cog):
             await ctx.send(speech.err.noperm.format(ctx.author.name, 'administrator'))
             if not self.bot.bot_has_permissions(manage_messages=True):
                 await ctx.send(speech.err.botnoperm.format('manage_messages'))
-
-
     
     @commands.group(help=speech.help.autodelete,brief=speech.brief.autodelete,hidden=True)
     @commands.has_permissions(administrator=True)
