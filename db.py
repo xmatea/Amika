@@ -119,3 +119,10 @@ def randGif(tag):
     doc = list(doc)
     return doc[0]['url']
 
+def getGifs(ids):
+    return db.gifs.find_many({"_id": ids})
+
+def getGif(id):
+    return db.gifs.find_one({"_id": id})
+    
+
