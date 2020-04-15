@@ -2,8 +2,7 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import has_permissions, MissingPermissions, BotMissingPermissions
 
-import utils.database as db
-from tinydb import Query
+import db
 import utils.process as process
 
 Config = process.readjson('config.json')
@@ -44,17 +43,17 @@ class Moderation(commands.Cog):
     # [NICHE FEATURE] auto deletion of text in whitelisted channels - will scale horribly
     @commands.Cog.listener()
     async def on_message(self, message):
-        if message.guild.id == Config.ownerguild:
+        if message.guild.id in Config.ownerguilds:
             if not message.author == self.bot.user:
-                if (db.queryGuild(Query().config.autodelete, message.channel.id)):
-                    if message.content :
+                if db.findGuild({ "$and": [{"_id": message.guild.id}, {"config.autodelete": message.channel.id}]}):
+                    if message.content:
                         await message.delete()
 
     @commands.group(help=speech.help.autodelete,brief=speech.brief.autodelete,hidden=True)
     @commands.has_permissions(administrator=True)
     @commands.bot_has_permissions(manage_messages=True)
     async def autodelete(self, ctx):
-        if not ctx.message.guild.id == Config.ownerguild:
+        if not ctx.guild.id in Config.ownerguilds:
             return
     
         if ctx.invoked_subcommand is None:
@@ -62,33 +61,23 @@ class Moderation(commands.Cog):
 
     @autodelete.command()
     async def start(self, ctx, args):    
-
-        guildobj = ctx.guild.get_channel(int(args))
-        if not guildobj:
+        channelobj = ctx.guild.get_channel(int(args))
+        if channelobj:
+            db.updateGuild(ctx.guild.id, {'$push': {'config.autodelete': channelobj.id}})
+            await ctx.send("Started autodeletion in {0}!".format(ctx.guild.get_channel(int(args))))
+        else:
             await ctx.send(speech.err.invalidid)
             return
-
-        doc = db.getGuild(ctx.guild)
-        if not doc: 
-            db.insertGuild(ctx.guild)
-        else:
-            db.upsertGuild({'config':{'autodelete': guildobj.id}}, Query().id, ctx.guild.id)
-            await ctx.send("Started autodeletion in {0}!".format(ctx.guild.get_channel(int(args))))
        
     @autodelete.command()
     async def stop(self, ctx, args): 
 
-        guildobj = ctx.guild.get_channel(int(args))
-        if not guildobj:
-            await ctx.send(speech.err.invalidid)
-            return
-
-        doc = db.getGuild(ctx.guild)
-        if not doc: 
-            db.insertGuild(ctx.guild)
-        else:
-            db.upsertGuild({'config':{'autodelete': guildobj.id}}, Query().id, ctx.guild.id)
+        channelobj = ctx.guild.get_channel(int(args))
+        if channelobj:
+            db.updateGuild(ctx.guild.id, {'$pull': {'config.autodelete': channelobj.id}})
             await ctx.send("Stopped autodeletion in {0}!".format(ctx.guild.get_channel(int(args))))
+        else:
+            await ctx.send(speech.err.invalidid)
 
     @autodelete.error
     async def autodelete_error(self, ctx, error):

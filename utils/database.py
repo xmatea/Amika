@@ -5,6 +5,29 @@ from datetime import datetime
 guilds = TinyDB('guilds.json')
 members = TinyDB('members.json')
 
+gifs = TinyDB('gifs.json')
+hug = gifs.table('hug')
+kiss = gifs.table('kiss')
+slap = gifs.table('slap')
+cuddle = gifs.table('cuddle')
+blush = gifs.table('pout')
+
+def tableLen(table):
+    table = globals()[table]
+    return len(table)
+
+def insertGif(gif, table):
+    table = globals()[table]
+    return table.insert({'url':gif})
+
+def getGif(id, table):
+    table = globals()[table]
+    return table.get(doc_id=id)
+
+def removeGif(id, table):
+    table = globals()[table]
+    table.remove(doc_ids=[id])
+    
 def getGuild(guild):
     return guilds.get(Query().id == guild.id)
 
