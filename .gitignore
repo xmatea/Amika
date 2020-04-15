@@ -1,6 +1,4 @@
 .env
-guilds.json
-members.json
 config.json
 .now
 now.json
