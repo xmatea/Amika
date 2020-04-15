@@ -2,3 +2,8 @@
 guilds.json
 members.json
 config.json
+.now
+now.json
+__pycache__
+utils/__pychache__
+cogs/__pycache__

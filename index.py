@@ -1,13 +1,13 @@
 import discord
+import flask
 from discord.ext import commands
 from datetime import date, datetime
 from dotenv import load_dotenv
 import os
 import logging
 import utils.process as process
-import utils.database as db2
 import db
-from tinydb import Query
+
 
 logging.basicConfig(level=logging.INFO)
 Config = process.readjson('config.json')
