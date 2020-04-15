@@ -40,15 +40,7 @@ class Moderation(commands.Cog):
                 await ctx.send(speech.err.botnoperm.format('manage_messages'))
 
 
-    # [NICHE FEATURE] auto deletion of text in whitelisted channels - will scale horribly
-    @commands.Cog.listener()
-    async def on_message(self, message):
-        if message.guild.id in Config.ownerguilds:
-            if not message.author == self.bot.user:
-                if db.findGuild({ "$and": [{"_id": message.guild.id}, {"config.autodelete": message.channel.id}]}):
-                    if message.content:
-                        await message.delete()
-
+    
     @commands.group(help=speech.help.autodelete,brief=speech.brief.autodelete,hidden=True)
     @commands.has_permissions(administrator=True)
     @commands.bot_has_permissions(manage_messages=True)
