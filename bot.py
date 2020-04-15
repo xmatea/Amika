@@ -1,5 +1,4 @@
 import discord
-import flask
 from discord.ext import commands
 from datetime import date, datetime
 from dotenv import load_dotenv
@@ -7,7 +6,6 @@ import os
 import logging
 import utils.process as process
 import db
-
 
 logging.basicConfig(level=logging.INFO)
 Config = process.readjson('config.json')
