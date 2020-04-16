@@ -31,7 +31,10 @@ class Personal(commands.Cog):
             user = db.findMember({"_id": r.inserted_id})
         
         embed = discord.Embed(title=speech.profile.title.format(member.name), colour=process.colour_convert('#8cce51'))
-        bal = user['bal']
+        try:
+            bal = user['bal']
+        catch ValueError:
+            pass
         embed.add_field(name="Balance", value=f"Current balance: {bal} :crescent_moon:")
             
         await ctx.send(content="", embed=embed)
