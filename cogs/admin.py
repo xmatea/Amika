@@ -17,6 +17,10 @@ class Admin(commands.Cog):
         db.insertGuilds(ctx.guild.members)
 
     @commands.command(hidden=True)
+    async def colourconvert(self,ctx,*args):
+        await ctx.send(process.colour_convert(args[0]))
+
+    @commands.command(hidden=True)
     async def clonecoll(self, ctx, *args):   
         await ctx.send(f"Scanned {db.clonecoll(args[0])} documents and added non duplicates into **{args[0]}**")
 

@@ -10,6 +10,10 @@
         "desc": "\nNeed help? Here is a list of all the things I can do. For more details on a specific command or category, type {1}help <name>"
     },
 
+    "profile": {
+        "title": ":hibiscus: {0}'s profile :hibiscus:"
+    },
+
     "hug": {
         "none": "{0} needs a hug!",
         "self": "Hugging yourself, {0}?",

@@ -98,8 +98,8 @@ def insertMembers(member):
     except OperationFailure as e:
          print(f"Write error for member insert, error: {e}")
 
-def queryMembers(q1, q2):
-    return db.members.find_one({q1: q2})
+def findMember(query):
+    return db.members.find_one(query)
 
 def removeMember(q1, q2):
     return db.members.delete_one({q1: q2})
