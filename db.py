@@ -101,6 +101,9 @@ def insertMembers(member):
 def findMember(query):
     return db.members.find_one(query)
 
+def updateMember(query, update, upsert):
+    return db.members.update_one(query, update, upsert)
+
 def removeMember(q1, q2):
     return db.members.delete_one({q1: q2})
 

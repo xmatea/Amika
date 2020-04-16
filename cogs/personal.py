@@ -16,7 +16,7 @@ class Personal(commands.Cog):
         if args:
             try:
                 targetid = process.mentionStrip(args[0])
-                if not ctx.guild.get(targetid):
+                if not ctx.guild.get_member(targetid):
                     raise ValueError
             except ValueError:
                 ctx.send(speech.err.invaliduser)
@@ -29,13 +29,15 @@ class Personal(commands.Cog):
         if not user:
             r = db.insertMembers(member)
             user = db.findMember({"_id": r.inserted_id})
-        
+
         embed = discord.Embed(title=speech.profile.title.format(member.name), colour=process.colour_convert('#8cce51'))
+
         try:
             bal = user['bal']
-        catch ValueError:
-            pass
-        embed.add_field(name="Balance", value=f"Current balance: {bal} :crescent_moon:")
+        except ValueError:
+            bal = 0
+
+        embed.add_field(name="Balance", value=f"Current balance: {bal} :tooth:")
             
         await ctx.send(content="", embed=embed)
                 
