@@ -12,9 +12,14 @@ class Admin(commands.Cog):
         self.name = 'Admin'
 
     @commands.command(hidden=True)
-    async def db_scan(self, ctx, *args):   
+    async def dbScan(self, ctx, *args):   
         db.insertMembers(ctx.guild.members)
-    
+        db.insertGuilds(ctx.guild.members)
+
+    @commands.command(hidden=True)
+    async def clonecoll(self, ctx, *args):   
+        await ctx.send(f"Scanned {db.clonecoll(args[0])} documents and added non duplicates into **{args[0]}**")
+
     @commands.command(hidden=True)
     async def test(self, ctx, *args):
         db.removeGuild(ctx.guild)

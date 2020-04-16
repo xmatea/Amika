@@ -2,13 +2,17 @@ import discord
 from tinydb import TinyDB, Query, where
 from datetime import datetime
 import pymongo
-from pymongo.errors import OperationFailure, BulkWriteError
+from pymongo.errors import OperationFailure, BulkWriteError, DuplicateKeyError
 import os
 from dotenv import load_dotenv
 load_dotenv()
 client = pymongo.MongoClient(os.getenv('MONGODB'))
+dev = os.getenv('DEV')
 
-db = client.nia
+if dev:
+    db = client.niatest
+else:
+    db = client.nia
 
 #### guild operations ####
 def insertGuilds(guild):
@@ -125,4 +129,19 @@ def getGifs(ids):
 def getGif(id):
     return db.gifs.find_one({"_id": id})
     
+def clonecoll(args):
+    if args=='gifs':
+        target = client.nia.gifs
+    elif args=='members':
+        target = client.nia.members
+    elif args=='guilds':
+        target= client.nia.guilds
 
+    i=0
+    for doc in target.find():
+        try:
+            db.members.insert(doc)
+            i+=1
+        except DuplicateKeyError:
+            pass
+    return i
