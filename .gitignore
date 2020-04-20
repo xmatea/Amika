@@ -1,7 +1,6 @@
 .env
 config.json
-.now
-now.json
+Procfile
 __pycache__
 utils/__pychache__
 cogs/__pycache__
