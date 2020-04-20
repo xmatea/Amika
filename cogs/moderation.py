@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import has_permissions, MissingPermissions, BotMissingPermissions
 
-import db
+from mongo import db
 import utils.process as process
 
 Config = process.readjson('config.json')
@@ -18,26 +18,16 @@ class Moderation(commands.Cog):
     @commands.command(help=speech.help.clear, brief=speech.brief.clear)
     async def clear(self, ctx, args):
         if not args:
-            await ctx.send("You need to specify a number of messages.")
-            return
-
+            return await ctx.send("You need to specify a number of messages.")
         try:
             a = int(args)+1
             if a>=1000:
-                await ctx.send("Woah easy, just how many messages do you wanna delete?? Do like 999 or smt, jeez :/")
-                return
+                return await ctx.send("Woah easy, just how many messages do you wanna delete?? Do like 999 or smt, jeez :/")
             d = await ctx.channel.purge(limit=a)
             await ctx.send(f"Deleted {len(d)-1} messages!")
         except ValueError:
             await ctx.send("That's not a number, silly!")
             return
-
-    @clear.error
-    async def clear_error(self, ctx, error):
-        if isinstance(error, MissingPermissions):
-            await ctx.send(speech.err.noperm.format(ctx.author.name, 'administrator'))
-            if not self.bot.bot_has_permissions(manage_messages=True):
-                await ctx.send(speech.err.botnoperm.format('manage_messages'))
     
     @commands.group(help=speech.help.autodelete,brief=speech.brief.autodelete,hidden=True)
     @commands.has_permissions(administrator=True)
@@ -47,7 +37,7 @@ class Moderation(commands.Cog):
             return
     
         if ctx.invoked_subcommand is None:
-            await ctx.send("usage ...")
+            await ctx.send(speech.help.autodelete)
 
     @autodelete.command()
     async def start(self, ctx, args):    

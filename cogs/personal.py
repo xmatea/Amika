@@ -46,19 +46,14 @@ class Personal(commands.Cog):
         embed = discord.Embed(title=":hibiscus: :tooth: Daily teeth :tooth: :hibiscus:", description="Gave {0} **5** teeth! \nCome back in **24** hours for a new claim <3".format(ctx.author.name))
         await ctx.send(content="", embed=embed)
 
-    @daily.error
-    async def daily_error(self, ctx, error):
-        if isinstance(error, commands.CommandOnCooldown):
-            time = error.retry_after
+    @commands.command(alias="bal")
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def balance(self, ctx):
+        member = ctx.message.author.id
+        bal = db.queryUsers({"_id": member})['bal']
+        embed = discord.Embed(title=":hibiscus: {0}'s balance :hibiscus:".format(ctx.author.name), description="You can use teeth to buy items or upgrades for me! Get teeth with daily commands, from crates, or by voting for me on {0} using {1}vote".format("link", Config.prefix))
+        embed.add_field(name="Teeth", value=f"{bal}:tooth:")
+        await ctx.send(content="", embed=embed)
 
-            hours, rest = divmod(time, 3600)
-            minutes, seconds = divmod(rest, 60)
-            hours = int(hours)
-            minutes = int(minutes)
-            seconds = int(seconds)
-
-            timestr = f"{hours}h, {minutes}m and {seconds}s"
-            embed = discord.Embed(title=":hibiscus: Daily teeth :hibiscus:", description=f"You can only perform this command once every **24** hours... \nThat's capitalism for you :/\nTime remaining: **{timestr}**")
-            await ctx.send(content="",embed=embed)
 def setup(bot):
     bot.add_cog(Personal(bot))

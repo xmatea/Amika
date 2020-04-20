@@ -1,9 +1,11 @@
 import discord
 from discord.ext import commands
-import db
-import utils.process as process
 
-Config = process.readjson('config.json')
+from mongo import db
+from utils.process import readjson, colour_convert
+from utils.checks import isDev
+
+Config = readjson('config.json')
 
 class Admin(commands.Cog):
     def __init__(self, bot):
@@ -12,23 +14,29 @@ class Admin(commands.Cog):
         self.name = 'Admin'
 
     @commands.command(hidden=True)
+    @commands.check(isDev)
     async def dbScan(self, ctx, *args):   
-        db.insertMembers(ctx.guild.members)
+        db.insertUsers(ctx.guild.members)
         db.insertGuilds(ctx.guild.members)
 
     @commands.command(hidden=True)
+    @commands.check(isDev)
     async def colourconvert(self,ctx,*args):
-        await ctx.send(process.colour_convert(args[0]))
+        await ctx.send(colour_convert(args[0]))
 
     @commands.command(hidden=True)
-    async def clonecoll(self, ctx, *args):   
-        await ctx.send(f"Scanned {db.clonecoll(args[0])} documents and added non duplicates into **{args[0]}**")
+    @commands.check(isDev)
+    async def clonecoll(self, ctx, *args):
+        r = db.clonecoll(args[0])
+        await ctx.send(f"Scanned {r} documents and added non duplicates into **{args[0]}**")
 
     @commands.command(hidden=True)
+    @commands.check(isDev)
     async def test(self, ctx, *args):
         db.removeGuild(ctx.guild)
 
     @commands.command(hidden=True)
+    @commands.check(isDev)
     async def gif(self, ctx, *args):
         if args[0] == 'add':
             if ctx.message.author.id in Config.mods:

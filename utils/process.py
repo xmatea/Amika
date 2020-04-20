@@ -3,9 +3,10 @@ import json
 from collections import namedtuple
 from json import JSONEncoder
 
+
 def readjson(file):
     def decoder(dict):
-        return namedtuple('obj', dict.keys())(*dict.values())
+        return namedtuple('JSONobj', dict.keys())(*dict.values())
 
     try:
         with open(file, encoding='utf8') as f:
