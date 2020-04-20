@@ -1,6 +1,10 @@
 {
+    "economy": {
+        "teethdesc": "You can use teeth to buy items or upgrades for me! Get teeth with daily commands, from crates, or by voting for me on {0} using {1}vote"
+    },
+
     "err": {
-        "noperm": "**{0}**, you are not allowed to perform that command... Required permission: `{1}` ",
+        "noperm": "You are not allowed to perform that command... Required permission: `{0}` ",
         "botnoperm": "I am not allowed to perform that command ;-; Required permission: `{0}`",
         "invalidid": "Invalid id: '{0}'",
         "usage": "Incorrect usage! Run {0}help {1} for more information."
@@ -54,9 +58,7 @@
         "err": "Sorry {0}, I could not find that person in the server, but you c-can hit me if you want..."
     },
 
-    "hasbf": "Nice try, Ryan's taken :wink:",
-    "hasgf": "Haha sorry, Tea's taken :wink:",
-
+    "isTaken": "Nice try, {0} is taken :wink:",
     
     "brief": {
         "autodelete": "Automatically deletes non-image messages in a given channel.",
