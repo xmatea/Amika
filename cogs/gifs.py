@@ -36,7 +36,6 @@ class Gifs(commands.Cog):
             if check:
                 if target.id in Config.devs:
                     if not ctx.message.author.id in Config.devs:
-                        print("t")
                         return speech.isTaken.format(target.name), False
 
             return resp.user.format(ctx.message.author.name, target.name), True

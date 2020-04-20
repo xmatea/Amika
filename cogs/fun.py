@@ -1,12 +1,11 @@
 import discord
+import re
+import random
 from discord.ext import commands
 from discord.ext.commands import has_permissions, MissingPermissions, BotMissingPermissions
 
-import db
-from tinydb import Query
+from mongo import db
 import utils.process as process
-import re
-import random
 
 Config = process.readjson('config.json')
 speech = process.readjson('speech.json')
