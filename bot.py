@@ -13,12 +13,12 @@ Config = process.readjson('config.json')
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
 
-class Amika(commands.Bot):
+class Nia(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix=Config.prefix)
         #self.command_prefix = Config.prefix
 
-bot = Amika()
+bot = Nia()
 
 # read and load cogs
 bot.remove_command('help')
@@ -31,6 +31,7 @@ for file in os.listdir("cogs"):
 
 @bot.event
 async def on_ready():
-    print("Amika started at {0}, loaded {1} cog(s)".format(datetime.now().strftime("%H:%M:%S"), len(bot.cogs)))
+    await bot.change_presence(activity=discord.Game("human ;-; nia help"))
+    print("<3 Nia ready at {0} <3 \nloaded {1} cog(s)".format(datetime.now().strftime("%H:%M:%S"), len(bot.cogs)))
 
 bot.run(TOKEN)

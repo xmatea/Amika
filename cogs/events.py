@@ -1,8 +1,11 @@
 import discord
 from discord.ext import commands
-from mongo import db
+import datetime
+
+from mongo import db as mongo
 from utils.process import readjson
 speech = readjson('speech.json')
+db = mongo.db
 
 class EventHandler(commands.Cog):
     def __init__(self, bot):
@@ -10,23 +13,22 @@ class EventHandler(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
-        db.insertGuilds(guild)
-        db.insertUsers(guild.members)
-
+        mongo.insert(guild, mongo.guildModel, db.guilds)
+        
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
-        db.removeGuild(guild)
+        mongo.remove(guild, db.guilds)
 
+    # in the future, push guild id in array on insert, and check array length to determine removal.
+    # only inserting to user db when required...
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        if not db.queryUsers({"_id": member.id}):
-            return db.insertUser(member)
+       pass
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        if db.queryUsers({"_id": member.id}):
-            db.removeUser({"_id": member.id})
-        
+        pass        
+
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
         print(error)
@@ -38,20 +40,12 @@ class EventHandler(commands.Cog):
             # if not ctx.channel.permissions_for(ctx.guild.me).send_messages 
         
         if isinstance(error, commands.CommandOnCooldown):
-            time = error.retry_after
-            time = round(time, 2)
-            if ctx.command.name == 'daily':
-                hours, rest = divmod(time, 3600)
-                minutes, seconds = divmod(rest, 60)
-                hours = int(hours)
-                minutes = int(minutes)
-                seconds = int(seconds)
-
-                timestr = f"{hours}h, {minutes}m and {seconds}s"
-                embed = discord.Embed(title=":hibiscus: Daily teeth :hibiscus:", description=f"You can only perform this command once every **24** hours... \nThat's capitalism for you :/\nTime remaining: **{timestr}**")
-                return await ctx.send(content="",embed=embed)
-
-            await ctx.send(f"Woah there {ctx.message.author.name}, I put you on cooldown... Time remaining: {error.retry_after}s")
-
+            seconds = error.retry_after
+            hours = round(seconds // 3600)
+            minutes = round((seconds % 3600) // 60)
+            seconds = round(seconds % 60)
+            return await ctx.send(f"This command is on cooldown, so you'll have to wait a little.... Time remaining: {hours}:{minutes}:{seconds}")
+        
+        
 def setup(bot):
     bot.add_cog(EventHandler(bot))

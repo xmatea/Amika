@@ -1,5 +1,6 @@
 import discord
 from datetime import datetime
+import time
 import os
 
 import pymongo
@@ -9,6 +10,8 @@ from dotenv import load_dotenv
 load_dotenv()
 client = pymongo.MongoClient(os.getenv('MONGODB'))
 dev = os.getenv('DEV')
+global db
+dev = True
 
 if dev:
     db = client.niatest
@@ -22,133 +25,87 @@ def guildModel(guild):
             "name": guild.name,
             "owner": guild.owner.id,
             "joined_at": datetime.now().isoformat(),
-            "created_at": guild.created_at.isoformat(),
-            "config": { "autodelete": [] }
-        }
-
+            "created_at": guild.created_at.isoformat()
+    }
 def userModel(user):
     return {
         "_id": user.id,
         "name": user.name,
-        "created_at": user.created_at.isoformat(),
         "bal": 0,
         "inventory": []
     }
 
+def gifModel(gif):
+    return {
+        "url": gif[0], 
+        "tag": gif[1]
+    }
 
-#### guild operations ####
-
-def insertGuilds(guild):
-    try: 
-        docs=[]
-        for g in guild:
-            if not db.guilds.find_one({"_id": g.id}):
-                doc = guildModel(g)
-                docs.append(doc)
-        if len(docs) > 1:
-            try:
-                return db.guilds.insert_many(docs)
-            except BulkWriteError as e:
-                    print(f"Write error for guild insert, error: {e}")
-        elif len(docs) == 1:
-            return db.guilds.insert_one(docs[0])
-    except OperationFailure as e:
-        print(f"Write error for guild {g}, error: {e}")
-
-def insertGuild(guild):
+######## CRUD ##########
+def simpleInsert(obj, model, coll):
     try:
-        if not db.guilds.find_one({"_id": guild.id}):
-            return db.guilds.insert_one(guildModel(guild))
+        if isinstance(obj, list):
+            return coll.insert(model(map(lambda x: x.id, obj)))
+        return coll.insert(model(obj))
     except OperationFailure as e:
-        print(f"Write error for guild {guild}, error: {e}")
+        print(f"MongoDB update error in collection {coll}\nError:{e}")
 
-def removeGuild(query):
+def insert(obj, model, coll):
+    unique = lambda d: coll.find({"_id": d.id}).count() == 0
+    r=0
     try:
-        return db.guilds.delete_one(query)
-    except Exception as e:
-        print(f"Delete error: {e}") 
-
-def findGuild(query):
-    return db.guilds.find_one(query)
-
-def updateGuild(id, val):
-    return db.guilds.update_one({"_id": id}, val)
-
-#### user operations ####
-def insertUsers(user):
-    try: 
-        docs=[]
-        for u in user:
-            if not db.guilds.find_one({"_id": u.id}):
-                doc = userModel(u)
-                docs.append(doc)
-        if len(docs) > 1:
-            try:
-                return db.users.insert_many(docs)
-            except BulkWriteError as e:
-                    print(f"Write error for guild insert, error: {e}")
-        elif len(docs) == 1:
-            return db.users.insert_one(docs[0])
+        if isinstance(obj, list):
+                filtered = list(filter(unique, obj))
+                if filtered:
+                    if len(filtered) < 2:
+                        r = coll.insert(model(filtered[0]))
+                    else:
+                        r = coll.insert(list(map(model, filtered)))
+        else:
+            if unique(obj):
+                r = coll.insert(model(obj))
+        return r
     except OperationFailure as e:
-        print(f"Write error for user {u.id}, error: {e}")
+        print(f"MongoDB update error in collection {coll}\nError:{e}")
 
-def insertUser(user):
+def update(query, update, coll, upsert=True):
     try:
-        if not db.users.find_one({"_id": user.id}):
-            return db.users.insert_one(userModel(user))
+        if isinstance(id, list):
+            return coll.update_many(query, update)
+        else:
+            return coll.update_one(query, update)
     except OperationFailure as e:
-         print(f"Write error for user insert, error: {e}")
+        print(f"MongoDB update error in collection {coll}\nError:{e}")
 
-def queryUsers(query):
-    return db.users.find_one(query)
-
-def updateUser(query, update, upsert):
-    return db.users.update_one(query, update, upsert)
-
-def removeUser(query):
+def remove(query, coll):
     try:
-        return db.users.delete_one(query)
-    except Exception as e:
-        print(f"Delete error: {e}") 
+        return coll.remove(query)
+    except OperationFailure as e:
+        return print(f"MongoDB remove error in collection {coll}\nError:{e}")
 
-# gif operations
-def insertGif(gif, tag):
-    if isinstance(gif, list):
-        docs=[]
-        for g in gif:
-            docs.append({"url": g, "tag": tag})
-        return db.gifs.insert_many(docs)
-    else:
-        return db.gifs.insert_one({"url": gif, "tag": tag})
+def find(doc, coll):
+    try:
+        if isinstance(doc, list):
+            return coll.find_many(doc)
+        else:
+            return coll.find_one(doc)
+    except OperationFailure as e:
+        return print(f"MongoDB find error in collection {coll}\nError:{e}")
+
+### other ###
+def gifInsert(gif, model, coll):
+    try:
+        if isinstance(gif, list):
+            return coll.insert(map(model, gif))
+        else:
+            return coll.insert(model(gif))
+    except OperationFailure as e:
+        print(f"MongoDB update error in collection {coll}\nError:{e}")
 
 def randGif(tag):
     doc = db.gifs.aggregate([
         { '$match': { 'tag': tag } },
         {'$sample': { 'size': 1 } }
     ])
-    
     doc = list(doc)
     return doc[0]['url']
-
-def getGifs(ids):
-    return db.gifs.find_many({"_id": ids})
-
-def getGif(id):
-    return db.gifs.find_one({"_id": id})
-    
-def clonecoll(args):
-    if args=='gifs':
-        target = client.nia.gifs
-    elif args=='members':
-        target = client.nia.members
-    elif args=='guilds':
-        target= client.nia.guilds
-
-    i=0
-    for doc in target.find():
-        try:
-            db.members.insert(doc)
-            i+=1
-        except DuplicateKeyError:
-            pass
-    return i

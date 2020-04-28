@@ -1,10 +1,11 @@
 import discord
 from discord.ext import commands
 
-from mongo import db
+from mongo import db as mongo
 from utils.process import readjson, colour_convert
 from utils.checks import isDev
 
+db = mongo.db
 Config = readjson('config.json')
 
 class Admin(commands.Cog):
@@ -15,9 +16,9 @@ class Admin(commands.Cog):
 
     @commands.command(hidden=True)
     @commands.check(isDev)
-    async def dbScan(self, ctx, *args):   
-        db.insertUsers(ctx.guild.members)
-        db.insertGuilds(ctx.guild.members)
+    async def dbscan(self, ctx, *args):   
+        r = mongo.insert(ctx.guild.members, mongo.userModel, db.users)
+        await ctx.send(f"inserted {r} docs")
 
     @commands.command(hidden=True)
     @commands.check(isDev)
@@ -33,27 +34,24 @@ class Admin(commands.Cog):
     @commands.command(hidden=True)
     @commands.check(isDev)
     async def test(self, ctx, *args):
-        db.removeGuild(ctx.guild)
+        mongo.insert(ctx.guild, mongo.guildModel, db.guilds)
+        mongo.update({"_id": ctx.guild.id}, {'$set': {"vm_enabled": True} }, db.guilds)
 
     @commands.command(hidden=True)
     @commands.check(isDev)
     async def gif(self, ctx, *args):
         if args[0] == 'add':
-            if ctx.message.author.id in Config.mods:
+            if ctx.message.author.id in Config.devs:
                 gif = args[2:]
                 module = args[1]
-                ret=""
-                c=0
+                lis=[]
                 for g in gif:
                     if g.startswith("https://") and g.endswith(".gif"):
-                       r = db.insertGif(g, module)
-                       d = db.getGif(r.inserted_id)
-                       ret += f"ID: {d['_id']}\tURL:`{d['url']}`\n"
-                       c+=1
+                       lis.append([g, module])
                     else:
                         await ctx.send(f"'{g}' has a bad format and was not accepted. Syntax: `{Config.prefix}gif add [module] [url]`.\n URLs must start with https:// and end with .gif")
-
-                await ctx.send(f"Added {c} gif(s) to the **{args[1]}** gif pool.\n`{ret}`")
+                r = mongo.gifInsert(lis, mongo.gifModel, db.gifs)
+                await ctx.send(f"Added {len(r)} gif(s) to the **{args[1]}** gif pool.\n")
                 
 def setup(bot):
     bot.add_cog(Admin(bot))

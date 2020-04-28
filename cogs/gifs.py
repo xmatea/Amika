@@ -2,11 +2,11 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import has_permissions, MissingPermissions, BotMissingPermissions
 
-from mongo import db
-from tinydb import Query
+from mongo import db as mongo
 from utils.process import readjson, mentionStrip
 import re
 import random
+import mongo.db as db
 
 Config = readjson('config.json')
 speech = readjson('speech.json')
@@ -16,7 +16,6 @@ class Gifs(commands.Cog):
         self.bot = bot
         self.hidden = False
         self.name = 'Gifs'
-
     
     def gifCaption(self, ctx, target, resp, check):
         if not target:
@@ -47,7 +46,7 @@ class Gifs(commands.Cog):
         embed = discord.Embed(title=response[0])
 
         if response[1]:
-            gif = db.randGif('blush')
+            gif = mongo.randGif('blush')
             embed.set_image(url=gif)
         
         await ctx.send(content="", embed=embed)
@@ -58,7 +57,7 @@ class Gifs(commands.Cog):
         embed = discord.Embed(title=response[0])
 
         if response[1]:
-            gif = db.randGif('cuddle')
+            gif = mongo.randGif('cuddle')
             embed.set_image(url=gif)
         
         await ctx.send(content="", embed=embed)
@@ -69,7 +68,7 @@ class Gifs(commands.Cog):
         embed = discord.Embed(title=response[0])
 
         if response[1]:
-            gif = db.randGif('slap')
+            gif = mongo.randGif('slap')
             embed.set_image(url=gif)
         
         await ctx.send(content="", embed=embed)
@@ -80,7 +79,7 @@ class Gifs(commands.Cog):
         embed = discord.Embed(title=response[0])
 
         if response[1]:
-            gif = db.randGif('hug')
+            gif = mongo.randGif('hug')
             embed.set_image(url=gif)
         
         await ctx.send(content="", embed=embed)
@@ -91,7 +90,7 @@ class Gifs(commands.Cog):
         embed = discord.Embed(title=response[0])
 
         if response[1]:
-            gif = db.randGif('kiss')
+            gif = mongo.randGif('kiss')
             embed.set_image(url=gif)
         
         await ctx.send(content="", embed=embed)

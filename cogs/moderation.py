@@ -2,11 +2,16 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import has_permissions, MissingPermissions, BotMissingPermissions
 
-from mongo import db
+from mongo import db as mongo
 import utils.process as process
+import time
 
 Config = process.readjson('config.json')
 speech = process.readjson('speech.json')
+db = mongo.db
+vcmon_cooldowns = dict()
+millis = lambda: int(round(time.time() * 1000))
+
 class Moderation(commands.Cog):  
     def __init__(self, bot): 
         self.bot = bot
@@ -28,43 +33,55 @@ class Moderation(commands.Cog):
         except ValueError:
             await ctx.send("That's not a number, silly!")
             return
-    
-    @commands.group(help=speech.help.autodelete,brief=speech.brief.autodelete,hidden=True)
-    @commands.has_permissions(administrator=True)
-    @commands.bot_has_permissions(manage_messages=True)
-    async def autodelete(self, ctx):
-        if not ctx.guild.id in Config.ownerguilds:
-            return
-    
+
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_permissions(administrator=True)
+    @commands.group(help=speech.help.vc_monitoring, brief=speech.brief.vc_monitoring, name='vc_monitoring', aliases=['vc_mon'])       
+    async def vcmon(self, ctx):
         if ctx.invoked_subcommand is None:
-            await ctx.send(speech.help.autodelete)
+            embed = discord.Embed(title=":hibiscus: Voice chat monitoring :hibiscus:", description=speech.help.vc_monitoring.format(Config.prefix))
+            await ctx.send(content="", embed=embed)
+           
+    @vcmon.command()
+    async def set(self, ctx, *args):
+        try:
+            c,t = 0,0
+            for i in args:
+                if i == '-c' or i == '--cooldown':
+                    cid = int(args[args.index(i)+1])
+                    c = ctx.guild.get_channel(cid)     
+                elif i == '-t' or i == '--threshold':
+                    t = int(args[args.index(i)+1])
+                    if t < 3:
+                        await ctx.send("Warning: a threshold of 2 or lower not recommended, and can result in unnecessary pings.")
+            if not c and t:
+                raise IndexError
 
-    @autodelete.command()
-    async def start(self, ctx, args):    
-        channelobj = ctx.guild.get_channel(int(args))
-        if channelobj:
-            db.updateGuild(ctx.guild.id, {'$push': {'config.autodelete': channelobj.id}})
-            await ctx.send("Started autodeletion in {0}!".format(ctx.guild.get_channel(int(args))))
-        else:
-            await ctx.send(speech.err.invalidid)
-            return
-       
-    @autodelete.command()
-    async def stop(self, ctx, args): 
+            r = await ctx.guild.create_role(name='Voice ping')
+            mongo.update({"_id": ctx.guild.id}, {'$set': {'vm':{"channel": c.id, "threshold": t, "enabled":True, "role":r.id } } }, db.guilds)         
+            await ctx.send(f"Started voice chat monitoring successfully. \nThreshold: `{t}`\nChannel: `{c.name}`\nRole to ping: {r.mention}")
+        except (ValueError, IndexError):
+            return await ctx.send(speech.err.inputfail.format(Config.prefix, 'vc_monitoring'))
 
-        channelobj = ctx.guild.get_channel(int(args))
-        if channelobj:
-            db.updateGuild(ctx.guild.id, {'$pull': {'config.autodelete': channelobj.id}})
-            await ctx.send("Stopped autodeletion in {0}!".format(ctx.guild.get_channel(int(args))))
-        else:
-            await ctx.send(speech.err.invalidid)
+    @vcmon.command()
+    async def stop(self, ctx, *args):
+        if not mongo.find({"$and":[{"_id": ctx.guild.id}, {"vm.enabled": True}]}, db.guilds):
+            return await ctx.send("Voice chat monitoring is not enabled yet in this server.")
+        mongo.update({"_id": ctx.guild.id}, {'$set': {'vm.enabled':False } }, db.guilds)
+        await ctx.send("Stopped voice chat monitoring in this server.")
 
-    @autodelete.error
-    async def autodelete_error(self, ctx, error):
-        if isinstance(error, MissingPermissions):
-            await ctx.send(speech.err.noperm.format(ctx.author.name, 'manage_messages'))
-        elif isinstance(error, BotMissingPermissions):
-            await ctx.send(speech.err.botnoperm, 'manage_messages')
-
+    @commands.Cog.listener()
+    async def on_voice_state_update(self, member, before, after):
+        if not before.channel and after.channel:
+            d = mongo.find({"$and":[{"_id": member.guild.id}, {"vm.enabled": True}]}, db.guilds)
+            if d:
+                if not vcmon_cooldowns.get(member.guild.id) or (millis() - vcmon_cooldowns.get(member.guild.id)) > 1000*60*60*2:
+                    a = len(after.channel.members)
+                    if d['vm']['threshold'] == a:
+                        c = d['vm']['channel']
+                        r = d['vm']['role']
+                        role = member.guild.get_role(r)
+                        await member.guild.get_channel(c).send(f"Hey {role.mention}, {a} users are currently in a voice chat")
+                        vcmon_cooldowns[member.guild.id] = millis()
 def setup(bot):
     bot.add_cog(Moderation(bot))

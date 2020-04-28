@@ -7,7 +7,8 @@
         "noperm": "You are not allowed to perform that command... Required permission: `{0}` ",
         "botnoperm": "I am not allowed to perform that command ;-; Required permission: `{0}`",
         "invalidid": "Invalid id: '{0}'",
-        "usage": "Incorrect usage! Run {0}help {1} for more information."
+        "usage": "Incorrect usage! Run {0}help {1} for more information.",
+        "inputfail": "Command failed :( Are you sure you did that correctly? See {}help {} if you're unsure."
     },
 
     "helptxt": {
@@ -70,7 +71,8 @@
         "kiss": "Kiss someone you fancy~",
         "cuddle": "Because who doesn't like cuddles?",
         "blush": "Something made you blush? Show it with a gif.",
-        "slap": "Mad at somebody? Go ahead, release your anger."
+        "slap": "Mad at somebody? Go ahead, release your anger.",
+        "vc_monitoring": "Configurable command to ping for voice chat activity"
     },
 
     "help": {
@@ -83,6 +85,8 @@
         "kiss": "Makes me send a kiss gif to the chat with a caption. Mentioning someone will change the caption.\nUsage: {0}kiss @someone",
         "cuddle": "Makes me send a cuddle gif to the chat with a caption. Mentioning someone will change the caption.\nUsage: {0}cuddle @someone",
         "blush": "Makes me send a blush gif to the chat with a caption. Mentioning someone will change the caption.\nUsage: {0}blush @someone",
-        "slap": "Makes me send a slap gif to the chat with a caption. Mentioning someone will change the caption.\nUsage: {0}slap @someone"
+        "slap": "Makes me send a slap gif to the chat with a caption. Mentioning someone will change the caption.\nUsage: {0}slap @someone",
+        "vc_monitoring": "When voice chat monitoring is enabled, all members with the pingable role will be pinged when the number of members in any voice channel hits a specified threshold. The ping has a cooldown for 2 hours.\n\n**Subcommands**\n{0}vc_mon set\n{0}vc_mon stop\n\nSubcommand `set` takes the following arguments: \n `-t` [number] **Required**. Sets the threshold for the ping.\n`-c` [id] **Required**. Sets the channel for the ping message to be sent.\n\n**Examples**\n{0}vc_mon set -c 123456789012345678 -t 5\n{0}vc_mon stop"
+    
     }
 }
