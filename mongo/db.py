@@ -11,7 +11,6 @@ load_dotenv()
 client = pymongo.MongoClient(os.getenv('MONGODB'))
 dev = os.getenv('DEV')
 global db
-dev = True
 
 if dev:
     db = client.niatest
