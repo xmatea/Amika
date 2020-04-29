@@ -56,7 +56,8 @@ class Moderation(commands.Cog):
                         await ctx.send("Warning: a threshold of 2 or lower not recommended, and can result in unnecessary pings.")
                 elif i == '-d':
                     d = int(args[args.index(i)+1])
-                    await ctx.send("Warning: a threshold of less than 10 minutes can cause excessive pings.")
+                    if d < 10:
+                        await ctx.send("Warning: a threshold of less than 10 minutes can cause excessive pings.")
             if not (c and t and d):
                 raise IndexError
 
