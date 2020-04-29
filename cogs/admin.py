@@ -35,7 +35,18 @@ class Admin(commands.Cog):
     @commands.check(isDev)
     async def test(self, ctx, *args):
         mongo.insert(ctx.guild, mongo.guildModel, db.guilds)
-        mongo.update({"_id": ctx.guild.id}, {'$set': {"vm_enabled": True} }, db.guilds)
+
+    @commands.command(hidden=True)
+    @commands.check(isDev)
+    async def lang(self, ctx, *args):
+        if not args:
+            return ctx.send("which language?????")
+        if args[0] == 'no':
+            mongo.update({"_id": ctx.guild.id}, {'$set': {'language': 'no'} }, db.guilds)
+            await ctx.send("Satte språk til norsk!")
+        elif args[0] == 'en':
+            mongo.update({"_id": ctx.guild.id}, {'$set':{'language': 'en'} }, db.guilds)
+            await ctx.send("Set language to English!")
 
     @commands.command(hidden=True)
     @commands.check(isDev)
