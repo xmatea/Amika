@@ -86,7 +86,7 @@
         "cuddle": "Makes me send a cuddle gif to the chat with a caption. Mentioning someone will change the caption.\nUsage: {0}cuddle @someone",
         "blush": "Makes me send a blush gif to the chat with a caption. Mentioning someone will change the caption.\nUsage: {0}blush @someone",
         "slap": "Makes me send a slap gif to the chat with a caption. Mentioning someone will change the caption.\nUsage: {0}slap @someone",
-        "vc_monitoring": "When voice chat monitoring is enabled, all members with the pingable role will be pinged when the number of members in any voice channel hits a specified threshold. The ping has a cooldown for 2 hours.\n\n**Subcommands**\n{0}vc_mon set\n{0}vc_mon stop\n\nSubcommand `set` takes the following arguments: \n `-t` [number] **Required**. Sets the threshold for the ping.\n`-c` [id] **Required**. Sets the channel for the ping message to be sent.\n\n**Examples**\n{0}vc_mon set -c 123456789012345678 -t 5\n{0}vc_mon stop"
+        "vc_monitoring": "When voice chat monitoring is enabled, all members with the pingable role will be pinged when the number of members in any voice channel hits a specified threshold. The ping has a cooldown for 2 hours.\n\n**Subcommands**\n{0}vc_mon set\n{0}vc_mon stop\n\nSubcommand `set` takes the following arguments: \n `-t` [number] **Required**. Sets the threshold for the ping.\n`-c` [id] **Required**. Sets the channel for the ping message to be sent.\n`-d` [minutes] **Required**. Sets the cooldown for pinging.\n\n**Examples**\n{0}vc_mon set -c 123456789012345678 -t 5 -d 60\n{0}vc_mon stop"
     
     }
 }
