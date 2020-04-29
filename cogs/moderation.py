@@ -45,7 +45,7 @@ class Moderation(commands.Cog):
     @vcmon.command()
     async def set(self, ctx, *args):
         try:
-            c,t = 0,0
+            c,t,d = 0,0,0
             for i in args:
                 if i == '-c' or i == '--cooldown':
                     cid = int(args[args.index(i)+1])
@@ -54,11 +54,14 @@ class Moderation(commands.Cog):
                     t = int(args[args.index(i)+1])
                     if t < 3:
                         await ctx.send("Warning: a threshold of 2 or lower not recommended, and can result in unnecessary pings.")
-            if not c and t:
+                elif i == '-d':
+                    d = int(args[args.index(i)+1])
+                    await ctx.send("Warning: a threshold of less than 10 minutes can cause excessive pings.")
+            if not (c and t and d):
                 raise IndexError
 
             r = await ctx.guild.create_role(name='Voice ping')
-            mongo.update({"_id": ctx.guild.id}, {'$set': {'vm':{"channel": c.id, "threshold": t, "enabled":True, "role":r.id } } }, db.guilds)         
+            mongo.update({"_id": ctx.guild.id}, {'$set': {'vm':{"channel": c.id, "threshold": t, "enabled":True, "role":r.id, 'cooldown':d*60 } } }, db.guilds)         
             await ctx.send(f"Started voice chat monitoring successfully. \nThreshold: `{t}`\nChannel: `{c.name}`\nRole to ping: {r.mention}")
         except (ValueError, IndexError):
             return await ctx.send(speech.err.inputfail.format(Config.prefix, 'vc_monitoring'))
@@ -75,13 +78,17 @@ class Moderation(commands.Cog):
         if not before.channel and after.channel:
             d = mongo.find({"$and":[{"_id": member.guild.id}, {"vm.enabled": True}]}, db.guilds)
             if d:
-                if not vcmon_cooldowns.get(member.guild.id) or (millis() - vcmon_cooldowns.get(member.guild.id)) > 1000*60*60*2:
+                if not vcmon_cooldowns.get(member.guild.id) or (millis() - vcmon_cooldowns.get(member.guild.id)) > d['vm']['cooldown']:
                     a = len(after.channel.members)
-                    if d['vm']['threshold'] == a:
+                    print
+                    if d['vm']['threshold'] <= a:
                         c = d['vm']['channel']
                         r = d['vm']['role']
                         role = member.guild.get_role(r)
-                        await member.guild.get_channel(c).send(f"Hey {role.mention}, {a} users are currently in a voice chat")
+                        if mongo.find({"$and":[{"_id": member.guild.id}, {"language": "no"}]}, db.guilds):
+                            await member.guild.get_channel(c).send(f"Hei {role.mention}, ser ut som det skjer noe i voice chats...")
+                        else:
+                            await member.guild.get_channel(c).send(f"Hey {role.mention}, {a} users are currently in a voice chat")
                         vcmon_cooldowns[member.guild.id] = millis()
 def setup(bot):
     bot.add_cog(Moderation(bot))
